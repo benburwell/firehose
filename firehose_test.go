@@ -1,11 +1,79 @@
 package firehose_test
 
 import (
+	"context"
 	"encoding/json"
+	"flag"
+	"fmt"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/benburwell/firehose"
 )
+
+var (
+	username, password string
+	runIntegration     bool
+)
+
+func TestMain(m *testing.M) {
+
+	flag.BoolVar(&runIntegration, "run-integration-tests", false, "Run integration tests against a real Firehose")
+	flag.Parse()
+
+	if runIntegration {
+		username = os.Getenv("FIREHOSE_TEST_USERNAME")
+		password = os.Getenv("FIREHOSE_TEST_PASSWORD")
+		if username == "" || password == "" {
+			log.Println("To run integration tests, set your Firehose credentials in the environment variables FIREHOSE_TEST_USERNAME and FIREHOSE_TEST_PASSWORD.")
+			os.Exit(1)
+		}
+	}
+
+	os.Exit(m.Run())
+}
+
+func TestConnect(t *testing.T) {
+	if !runIntegration {
+		t.Skip("Skipping integration tests")
+		return
+	}
+
+	stream, err := firehose.Connect()
+	if err != nil {
+		t.Fatalf("could not establish connection: %v", err)
+		return
+	}
+	defer stream.Close()
+
+	init := fmt.Sprintf("live username \"%s\" password \"%s\" events \"position\"", username, password)
+	if err := stream.Init(init); err != nil {
+		t.Fatalf("could not initialize connection: %v", err)
+		return
+	}
+
+	msg, err := stream.NextMessage(context.Background())
+	if err != nil {
+		t.Errorf("NextMessage returned unexpected error: %v", err)
+	}
+	if msg.Type != "position" {
+		t.Errorf("unexpected message type: %s", msg.Type)
+	}
+	pos, ok := msg.Payload.(firehose.PositionMessage)
+	if !ok {
+		t.Fatalf("expected a position message but got: %t", msg.Payload)
+		return
+	}
+	t.Logf("received position message: %#v", pos)
+	if pos.PITR == "" {
+		t.Errorf("expected a PITR, but got nothing")
+	}
+
+	if err := stream.Close(); err != nil {
+		t.Errorf("unexpected error closing stream: %v", err)
+	}
+}
 
 func TestUnmarshalError(t *testing.T) {
 	data := []byte(`{"type":"error","error_msg":"I am an error"}`)
