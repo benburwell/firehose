@@ -43,7 +43,6 @@ func (c *Stream) Init(command string) error {
 type Message struct {
 	Type    string
 	Payload any
-	raw     json.RawMessage
 }
 
 func (m *Message) UnmarshalJSON(data []byte) error {
