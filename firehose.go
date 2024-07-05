@@ -6,10 +6,103 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strings"
 )
 
 // DefaultAddress is the default server address to use for Firehose connections.
 const DefaultAddress = "firehose.flightaware.com:1501"
+
+type Event string
+
+const (
+	PositionEvent Event = "position"
+)
+
+type Rectangle struct {
+	LowLat float64
+	LowLon float64
+	HiLat  float64
+	HiLon  float64
+}
+
+// InitCommand helps build and serialize an initiation command string which can be provided as the argument to
+// Stream.Init.
+type InitCommand struct {
+	// Live requests data from the present time forward.
+	Live bool
+	// PITR requests data starting from the specified time, in POSIX epoch format, in the past until the current time,
+	// and continue with live behavior.
+	PITR string
+	// Range requests data between the two specified times, in POSIX epoch format. FlightAware will disconnect the
+	// connection when the last message has been sent.
+	Range *PITRRange
+	// Password supplies the credentials for authentication. In most cases, this should actually be the Firehose API Key
+	// and not the password of the account.
+	Password string
+	// Username supplies the credentials for authentication. This should be the username of the FlightAware account that
+	// has been granted access.
+	Username string
+	// AirportFilter requests information only for flights originating from or destined for airports matching the space
+	// separated list of glob patterns provided.
+	//
+	// For example: "CYUL" or "K??? P* TJSJ"
+	AirportFilter []string
+	// Events specifies a list of downlink messages which should be sent.
+	//
+	// If not specified default behavior is to deliver all Airborne Feed messages enabled in the Firehose Subscription.
+	// Which event codes are available will depend on which Subscription Layers are enabled.
+	Events []Event
+	// LatLong specifies that only positions within the specified rectangle should be sent and any others will be
+	// ignored, unless the flight has already been matched by other criteria. Once a flight has been matched by a
+	// latlong rectangle, it becomes remembered and all subsequent messages until landing for that flight ID will
+	// continue to be sent even if the flight no longer matches a specified rectangle.
+	LatLong []Rectangle
+}
+
+func (i *InitCommand) String() string {
+	var parts []string
+
+	if i.Live {
+		parts = append(parts, "live")
+	}
+
+	if i.PITR != "" {
+		parts = append(parts, "pitr", i.PITR)
+	}
+
+	if i.Range != nil {
+		parts = append(parts, "range", i.Range.Start, i.Range.End)
+	}
+
+	parts = append(parts, "username", i.Username)
+	parts = append(parts, "password", i.Password)
+
+	if len(i.AirportFilter) > 0 {
+		filter := fmt.Sprintf("\"%s\"", strings.Join(i.AirportFilter, " "))
+		parts = append(parts, "airport_filter", filter)
+	}
+
+	if len(i.Events) > 0 {
+		var events []string
+		for _, e := range i.Events {
+			events = append(events, string(e))
+		}
+		filter := fmt.Sprintf("\"%s\"", strings.Join(events, " "))
+		parts = append(parts, "events", filter)
+	}
+
+	for _, rect := range i.LatLong {
+		filter := fmt.Sprintf("\"%f %f %f %f\"", rect.LowLat, rect.LowLon, rect.HiLat, rect.HiLon)
+		parts = append(parts, "latlong", filter)
+	}
+
+	return strings.Join(parts, " ")
+}
+
+type PITRRange struct {
+	Start string
+	End   string
+}
 
 // Connect is a simple way to open a Firehose stream using the default configuration.
 //

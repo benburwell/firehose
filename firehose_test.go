@@ -116,3 +116,27 @@ func TestUnmarshalPosition(t *testing.T) {
 		t.Errorf("unexpected ident: %s", pm.Ident)
 	}
 }
+
+func TestInitCommand(t *testing.T) {
+	c := firehose.InitCommand{
+		Live: true,
+		PITR: "1",
+		Range: &firehose.PITRRange{
+			Start: "2",
+			End:   "3",
+		},
+		Password:      "pw",
+		Username:      "un",
+		AirportFilter: []string{"KBOS", "EG??"},
+		Events:        []firehose.Event{firehose.PositionEvent},
+		LatLong: []firehose.Rectangle{
+			{LowLat: 1, LowLon: 2, HiLat: 3, HiLon: 4},
+			{LowLat: 5, LowLon: 6, HiLat: 7, HiLon: 8},
+		},
+	}
+	actual := c.String()
+	expected := `live pitr 1 range 2 3 username un password pw airport_filter "KBOS EG??" events "position" latlong "1.000000 2.000000 3.000000 4.000000" latlong "5.000000 6.000000 7.000000 8.000000"`
+	if actual != expected {
+		t.Errorf("unexpected init command: %s", actual)
+	}
+}

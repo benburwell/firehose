@@ -46,10 +46,20 @@ func (a *App) Run(ctx context.Context) error {
 	}
 	defer stream.Close()
 
-	initCommand := fmt.Sprintf("live username \"%s\" password \"%s\" events \"position\" latlong \"%f %f %f %f\"",
-		a.Username, a.Password, a.MinLat, a.MinLon, a.MaxLat, a.MaxLon)
+	cmd := firehose.InitCommand{
+		Live:     true,
+		Username: a.Username,
+		Password: a.Password,
+		Events:   []firehose.Event{firehose.PositionEvent},
+		LatLong: []firehose.Rectangle{{
+			LowLat: a.MinLat,
+			LowLon: a.MinLon,
+			HiLat:  a.MaxLat,
+			HiLon:  a.MaxLon,
+		}},
+	}
 
-	if err := stream.Init(initCommand); err != nil {
+	if err := stream.Init(cmd.String()); err != nil {
 		return fmt.Errorf("could not initialize firehose: %w", err)
 	}
 
