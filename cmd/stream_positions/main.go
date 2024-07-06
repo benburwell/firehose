@@ -72,7 +72,12 @@ func (a *App) Run(ctx context.Context) error {
 		}
 		switch m := msg.Payload.(type) {
 		case firehose.PositionMessage:
-			fmt.Printf("%#v\n", m)
+			printPosition(&m)
+
 		}
 	}
+}
+
+func printPosition(m *firehose.PositionMessage) {
+	fmt.Printf("%s: %s (%s/%s) %s->%s @ %sºN %sºE %sft\n", m.ID, m.Ident, m.ATCIdent, m.Reg, m.Orig, m.Dest, m.Lat, m.Lon, m.Alt)
 }

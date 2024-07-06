@@ -178,13 +178,13 @@ type Waypoint struct {
 	// Longitude in decimal degrees.
 	Lon float64 `json:"lon"`
 	// Clock is the time in POSIX epoch format.
-	Clock *string `json:"clock"`
+	Clock string `json:"clock"`
 	// Name is the airport, navaid, waypoint, intersection, or other identifier.
-	Name *string `json:"name"`
+	Name string `json:"name"`
 	// Alt is the altitude in feet (MSL).
-	Alt *string `json:"alt"`
+	Alt string `json:"alt"`
 	// GS is the ground speed in knots.
-	GS *string `json:"gs"`
+	GS string `json:"gs"`
 }
 
 // PositionMessage includes a position report.
@@ -228,118 +228,118 @@ type PositionMessage struct {
 	// command when reconnecting and you wish to resume firehose playback at that approximate position.
 	PITR string `json:"pitr"`
 	// Alt is altitude in feet (MSL).
-	Alt *string `json:"alt"`
+	Alt string `json:"alt"`
 	// AltChange describes change in altitude.
 	//
 	// - C for climbing
 	// - D for descending
 	// - " " when undetermined
-	AltChange *string `json:"alt_change"`
+	AltChange string `json:"alt_change"`
 	// GS is ground speed in knots.
-	GS *string `json:"gs"`
+	GS string `json:"gs"`
 	// Heading indicates the course in degrees.
-	Heading *string `json:"heading"`
+	Heading string `json:"heading"`
 	// Squawk is the transponder squawk code, a 4 digit octal transponder beacon code assigned by ATC.
-	Squawk *string `json:"squawk"`
+	Squawk string `json:"squawk"`
 	// Hexid is the transponder Mode S code, a 24-bit transponder code assigned by aircraft registrar. Formatted in
 	// upper case hexadecimal.
-	Hexid *string `json:"hexid"`
+	Hexid string `json:"hexid"`
 	// ATCIdent is an identifier used for ATC, if that differs from the flight identifier.
-	ATCIdent *string `json:"atcident"`
+	ATCIdent string `json:"atcident"`
 	// AircraftType is the ICAO aircraft type code.
-	AircraftType *string `json:"aircrafttype"`
+	AircraftType string `json:"aircrafttype"`
 	// Orig is the origin ICAO airport code, waypoint, or latitude/longitude pair.
-	Orig *string `json:"orig"`
+	Orig string `json:"orig"`
 	// Dest is the destination ICAO airport code, waypoint, or latitude/longitude pair. May be missing if not known.
-	Dest *string `json:"dest"`
+	Dest string `json:"dest"`
 	// Reg is the tail number or registration of the aircraft, if known and it differs from the ident.
-	Reg *string `json:"reg"`
+	Reg string `json:"reg"`
 	// ETA is the estimated time of arrival in POSIX epoch format.
-	ETA *string `json:"eta"`
+	ETA string `json:"eta"`
 	// EDT is the revised timestamp of when the flight is expected to depart in POSIX epoch format.
-	EDT *string `json:"edt"`
+	EDT string `json:"edt"`
 	// ETE is the en route time in seconds. May be missing if not known.
-	ETE *string `json:"ete"`
+	ETE string `json:"ete"`
 	// Speed is the filed cruising speed in knots.
-	Speed *string `json:"speed"`
+	Speed string `json:"speed"`
 	// Waypoints is an array of 2D, 3D, or 4D objects of locations, times, and altitudes.
 	Waypoints []Waypoint `json:"waypoints"`
 	// Route is a textual route string.
-	Route *string `json:"route"`
+	Route string `json:"route"`
 	// ADSBVersion is the ADS-B version used by the transmitter responsible for position, when known/applicable.
-	ADSBVersion *string `json:"adsb_version"`
+	ADSBVersion string `json:"adsb_version"`
 	// NACp is the ADS-B Navigational Accuracy Category for Position.
-	NACp *int `json:"nac_p"`
+	NACp int `json:"nac_p"`
 	// NACv is the ADS-B Navigational Accuracy Category for Velocity.
-	NACv *int `json:"nac_v"`
+	NACv int `json:"nac_v"`
 	// NIC is the ADS-B Navigational Integrity Category.
-	NIC *int `json:"nic"`
+	NIC int `json:"nic"`
 	// NICBaro is the ADS-B Navigational Integrity Category for Barometer.
-	NICBaro *int `json:"nic_baro"`
+	NICBaro int `json:"nic_baro"`
 	// SIL is the ADS-B Source Integrity Level
-	SIL *int `json:"sil"`
+	SIL int `json:"sil"`
 	// SILType is the ADS-B Source Integrity Level type (applies per-hour or per-sample).
 	//
 	// Possible values are "perhour", "persample", and "unknown".
-	SILType *string `json:"sil_type"`
+	SILType string `json:"sil_type"`
 	// PosRC is the ADS-B Radius of Containment, in meters.
-	PosRC *float64 `json:"pos_rc"`
+	PosRC float64 `json:"pos_rc"`
 	// HeadingMagnetic is the aircraft's heading, in degrees, relative to magnetic North.
-	HeadingMagnetic *string `json:"heading_magnetic"`
+	HeadingMagnetic string `json:"heading_magnetic"`
 	// HeadingTrue is the aircraft's heading, in degrees, relative to true North.
-	HeadingTrue *string `json:"heading_true"`
+	HeadingTrue string `json:"heading_true"`
 	// Mach is the mach number of the aircraft.
-	Mach *string `json:"mach"`
+	Mach string `json:"mach"`
 	// SpeedTAS is the true airspeed of the aircraft in knots.
-	SpeedTAS *string `json:"speed_tas"`
+	SpeedTAS string `json:"speed_tas"`
 	// SpeedIAS is the indicated airspeed of the aircraft in knots.
-	SpeedIAS *string `json:"speed_ias"`
+	SpeedIAS string `json:"speed_ias"`
 	// Pressure is the computed static air pressure in hPa.
-	Pressure *string `json:"pressure"`
+	Pressure string `json:"pressure"`
 	// WindQuality is set to 1 if the aircraft is stable (not maneuvering) and 0 if the aircraft is maneuvering.
 	//
 	// Derived wind data is less reliable if the aircraft is maneuvering.
-	WindQuality *string `json:"wind_quality"`
+	WindQuality string `json:"wind_quality"`
 	// WindDir is the computed wind direction, in degrees, relative to true North.
 	//
 	// The value uses the normal convention where the direction is opposite the wind vector (i.e. wind_dir = 0 means
 	// wind from the North).
-	WindDir *string `json:"wind_dir"`
+	WindDir string `json:"wind_dir"`
 	// WindSpeed is the computed wind speed in knots.
-	WindSpeed *string `json:"wind_speed"`
+	WindSpeed string `json:"wind_speed"`
 	// TemperatureQuality is set to 0 if the derived temperature is likely to be inaccurate due to quantization errors,
 	// 0 otherwise.
-	TemperatureQuality *string `json:"temperature_quality"`
+	TemperatureQuality string `json:"temperature_quality"`
 	// Temperature is the computed outside air temperature in degrees Celsius.
-	Temperature *string `json:"temperature"`
+	Temperature string `json:"temperature"`
 	// NavHeading is the heading in degrees from the navigation equipment.
-	NavHeading *string `json:"nav_heading"`
+	NavHeading string `json:"nav_heading"`
 	// NavAltitude is the altitude setting in feet from tne navigation equipment.
-	NavAltitude *string `json:"nav_altitude"`
+	NavAltitude string `json:"nav_altitude"`
 	// NavQNH is the altimeter setting in hPa that has been set.
-	NavQNH *string `json:"nav_qnh"`
+	NavQNH string `json:"nav_qnh"`
 	// NavModes is the list of active modes from the navigation equipment.
 	//
 	// Possible values are autopilot, vnav, althold, approach, lnav, tcas.
-	NavModes *string `json:"nav_modes"`
+	NavModes string `json:"nav_modes"`
 	// AltGNSS is the reported GNSS altitude (feet above WGS84 ellipsoid).
-	AltGNSS *string `json:"alt_gnss"`
+	AltGNSS string `json:"alt_gnss"`
 	// VertRate is the aircraft's vertical rate of climb/descent derived from pressure altitude, reported in feet per
 	// minute.
-	VertRate *string `json:"vertRate"`
+	VertRate string `json:"vertRate"`
 	// VertRateGeom is the aircraft's vertical rate of climb/descent derived from GNSS altitude, reported in feet per
 	// minute.
-	VertRateGeom *string `json:"vertRate_geom"`
+	VertRateGeom string `json:"vertRate_geom"`
 	// FuelOnBoard is the amount of fuel in the tank.
 	//
 	// The units are reported in the FuelOnBoardUnit field. This data is available for specifically authorized customers
 	// only.
-	FuelOnBoard *string `json:"fuel_on_board"`
+	FuelOnBoard string `json:"fuel_on_board"`
 	// FuelOnBoardUnit is the unit for FuelOnBoard.
 	//
 	// Possible values are LITERS, GALLONS, POUNDS, KILOGRAMS, or UNKNOWN. This data is available for specifically
 	// authorized customers only.
-	FuelOnBoardUnit *string `json:"fuel_on_board_unit"`
+	FuelOnBoardUnit string `json:"fuel_on_board_unit"`
 }
 
 func (c *Stream) NextMessage(ctx context.Context) (*Message, error) {
