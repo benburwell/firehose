@@ -4,7 +4,7 @@ This is a client library for [FlightAware's Firehose Flight Data Feed](https://w
 
 This is an _unofficial_ library and is not endorsed or supported by FlightAware.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/benburwell/flightaware-firehose.svg)](https://pkg.go.dev/github.com/benburwell/flightaware-firehose)
+[![Go Reference](https://pkg.go.dev/badge/github.com/benburwell/firehose.svg)](https://pkg.go.dev/github.com/benburwell/firehose)
 
 **This library is a work in progress!** Currently only `position` messages are supported.
 
