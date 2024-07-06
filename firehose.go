@@ -12,21 +12,31 @@ import (
 // DefaultAddress is the default server address to use for Firehose connections.
 const DefaultAddress = "firehose.flightaware.com:1501"
 
+// Event represents an event type which can be provided through a Firehose stream.
 type Event string
 
 const (
+	// PositionEvent indicates a position report from the airborne feed.
 	PositionEvent Event = "position"
 )
 
+// A Rectangle indicates a lat/lon bounding box.
 type Rectangle struct {
+	// LowLat is the minimum latitude included in the bounding box.
 	LowLat float64
+	// LowLon is the minimum longitude included in the bounding box.
 	LowLon float64
-	HiLat  float64
-	HiLon  float64
+	// HiLat is the maximum latitude included in the bounding box.
+	HiLat float64
+	// HiLon is the maximum longitude included in the bounding box.
+	HiLon float64
 }
 
 // InitCommand helps build and serialize an initiation command string which can be provided as the argument to
 // Stream.Init.
+//
+// Note: not all init command options supported by Firehose are available for use through this builder. See
+// https://www.flightaware.com/commercial/firehose/documentation/commands for full details.
 type InitCommand struct {
 	// Live requests data from the present time forward.
 	Live bool
@@ -59,6 +69,7 @@ type InitCommand struct {
 	LatLong []Rectangle
 }
 
+// String converts the InitCommand to a string suitable for passing to Stream.Init.
 func (i *InitCommand) String() string {
 	var parts []string
 
@@ -99,9 +110,14 @@ func (i *InitCommand) String() string {
 	return strings.Join(parts, " ")
 }
 
+// A PITRRange denotes a specific time range to fetch.
 type PITRRange struct {
+	// Start is the starting PITR.
 	Start string
-	End   string
+	// End is the ending PITR.
+	//
+	// After this PITR is reached, the Firehose connection will be closed by the server.
+	End string
 }
 
 // Connect is a simple way to open a Firehose stream using the default configuration.
@@ -116,6 +132,12 @@ func Connect() (*Stream, error) {
 }
 
 // NewStream creates a new Firehose Stream over the provided network connection.
+//
+// This allows for customization of the connection, for example connecting to a different Firehose server or overriding
+// the default TLS configuration.
+//
+// If you don't want to do any customization, you can use Connect instead to easily open a Stream with the default
+// configuration options.
 func NewStream(conn net.Conn) *Stream {
 	return &Stream{
 		conn:    conn,
@@ -123,21 +145,36 @@ func NewStream(conn net.Conn) *Stream {
 	}
 }
 
+// A Stream implements the Firehose protocol over a net.Conn.
 type Stream struct {
 	conn    net.Conn
 	decoder *json.Decoder
 }
 
+// Init sends the provided init command.
+//
+// Init must be called after the stream is initially created. You can use the InitCommand struct to help create a
+// command string, or you can provide your own.
+//
+// For details about the init command, see https://www.flightaware.com/commercial/firehose/documentation/commands.
 func (c *Stream) Init(command string) error {
 	_, err := fmt.Fprintln(c.conn, command)
 	return err
 }
 
+// Message encapsulates a message received from the Firehose Stream.
 type Message struct {
-	Type    string
+	// Type indicates the message type.
+	//
+	// It should always be one of the event types that was requested with the `events` init command option.
+	Type string
+	// Payload holds the message body represented as one of the message type structs.
+	//
+	// Generally, you will want to use a type switch to handle messages of various types. See the README for an example.
 	Payload any
 }
 
+// UnmarshalJSON implements json.Unmarshaler for Message.
 func (m *Message) UnmarshalJSON(data []byte) error {
 	var stub struct {
 		Type string `json:"type"`
@@ -342,6 +379,9 @@ type PositionMessage struct {
 	FuelOnBoardUnit string `json:"fuel_on_board_unit"`
 }
 
+// NextMessage reads a Message from the Stream.
+//
+// If a message cannot be read, an error is returned.
 func (c *Stream) NextMessage(ctx context.Context) (*Message, error) {
 	// If our context has a deadline, set the read deadline on our underlying connection accordingly.
 	if deadline, hasDeadline := ctx.Deadline(); hasDeadline {
@@ -365,6 +405,7 @@ func (c *Stream) NextMessage(ctx context.Context) (*Message, error) {
 	}
 }
 
+// Close closes the Firehose Stream and the underlying net.Conn.
 func (c *Stream) Close() error {
 	return c.conn.Close()
 }
